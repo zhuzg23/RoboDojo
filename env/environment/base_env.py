@@ -11,6 +11,7 @@ from omni.physx import acquire_physx_interface
 
 from env.environment.isaac.isaac_rl_env import IsaacRLEnv
 from env.seeding import seed_everywhere
+import os
 
 DEFAULT_SIM_DEVICE = "cpu"
 DEFAULT_USE_FABRIC = False
@@ -138,10 +139,13 @@ class BaseEnv(gym.Env):
         import traceback
 
         try:
+            render_mode = None if os.environ.get("ROBODOJO_NO_RTX_CAMERA", "0") == "1" else "rgb_array"
+            print(f"[BaseEnv] Isaac render_mode={render_mode}")
+
             self.sim: IsaacRLEnv = gym.make(
                 "IsaacRLEnv-V0",
                 cfg=self.sim_cfg,
-                render_mode="rgb_array",
+                render_mode=render_mode,
                 func={
                     "_setup_scene": self._setup_scene,
                     "_reset_idx": self._reset_idx,

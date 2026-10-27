@@ -126,6 +126,25 @@ from env.camera_manager.capture.render_sync import add_zero_delay_kit_args
 add_zero_delay_kit_args(args_cli)
 
 # launch omniverse app
+# RoboDojo pure-headless mode:
+# RTX/offscreen cameras are intentionally disabled on this machine.
+if os.environ.get("ROBODOJO_NO_RTX_CAMERA", "0") == "1":
+    os.environ["HEADLESS"] = "1"
+    os.environ["ENABLE_CAMERAS"] = "0"
+    os.environ["LIVESTREAM"] = "0"
+
+    if hasattr(args_cli, "headless"):
+        args_cli.headless = True
+    if hasattr(args_cli, "enable_cameras"):
+        args_cli.enable_cameras = False
+    if hasattr(args_cli, "video"):
+        args_cli.video = False
+
+    print(
+        "[Launcher] PURE HEADLESS: "
+        "HEADLESS=1 ENABLE_CAMERAS=0 enable_cameras=False video=False"
+    )
+
 app_launcher = AppLauncher(args_cli)
 simulation_app = app_launcher.app
 

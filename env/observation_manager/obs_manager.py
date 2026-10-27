@@ -1,3 +1,4 @@
+import os
 from copy import deepcopy
 from typing import List
 
@@ -81,8 +82,11 @@ class ObsManager:
     def render_for_capture(self):
         """Render until the camera buffers hold the current physics state.
 
-        Call this instead of a bare ``env.render()`` right before ``get_obs``.
+        In no-RTX mode there is no Isaac camera backend, so rendering is skipped.
         """
+        if self.camera_manager is None or self.capture_manager is None:
+            return
+
         from env.camera_manager.capture.render_sync import wait_for_latest_cameras
 
         wait_for_latest_cameras(
@@ -159,6 +163,34 @@ class ObsManager:
                             obs[env_idx]["vision"][camera_name]["extrinsic_matrix"] = (
                                 self.camera_manager.get_camera_extrinsics(ith, env_idx)
                             )
+
+        # ROBODOJO_EGL_THREE_CAMERA
+        if os.environ.get("ROBODOJO_EGL_LIVE", "0") == "1":
+            try:
+                from env.camera_manager.egl_stage_renderer import render_all_cameras
+
+                egl_images = render_all_cameras(
+                    self.robot_manager,
+                    self.env.scene_manager,
+                )
+
+                for env_idx in env_idx_list:
+                    for camera_name, egl_rgb in egl_images.items():
+
+                        obs[env_idx]["vision"].setdefault(
+                            camera_name,
+                            {}
+                        )
+
+                        # Match RoboDojo camera observation naming.
+                        obs[env_idx]["vision"][camera_name]["color"] = egl_rgb
+                        obs[env_idx]["vision"][camera_name]["rgb_capture"] = egl_rgb
+                        obs[env_idx]["vision"][camera_name]["shape"] = egl_rgb.shape
+
+            except Exception:
+                import traceback
+                print("[EGL3] render/injection failed")
+                traceback.print_exc()
 
         if self.robot_manager is not None:
             try:

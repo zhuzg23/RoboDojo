@@ -45,9 +45,13 @@ def seed_everywhere(seed: int = -1) -> int:
     """
     # set seed for replicator
     try:
-        import omni.replicator.core as rep
+        try:
+            import omni.replicator.core as rep
+        except (ImportError, ModuleNotFoundError):
+            rep = None
 
-        rep.set_global_seed(seed)
+        if rep is not None:
+            rep.set_global_seed(seed)
     except ModuleNotFoundError:
         pass
     random.seed(seed)
