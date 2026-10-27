@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export ROBODOJO_NO_RTX_CAMERA=1
 set -euo pipefail
 
 # Ensure project root is on PYTHONPATH so first-party imports like `env`, `task`, and `utils` work.
@@ -121,11 +122,9 @@ echo "[INFO] num_envs        = ${num_envs}"
 extra_args=()
 
 KIT_ENABLE_EXTS=(
-  "isaacsim.replicator.behavior"
-  "isaacsim.sensors.camera"
 )
 
-KIT_ARGS=""
+KIT_ARGS="--portable-root $HOME/.robodojo-kit"
 for ext in "${KIT_ENABLE_EXTS[@]}"; do
   KIT_ARGS+=" --enable ${ext}"
 done
@@ -146,8 +145,7 @@ while : ; do
   python -u src/eval_client/main.py \
     --task_name "$task_name" \
     --env_cfg_type "$env_cfg_type" \
-    --num_envs "$num_envs" \
-    --enable_cameras \
+    --num_envs 1 \
     --kit_args "$KIT_ARGS" \
     --device_id "$device_id" \
     --policy_name "$policy_name" \
@@ -157,6 +155,7 @@ while : ; do
     --additional_info "$additional_info" \
     --seed "$seed" \
     --host "$host" \
+    --experience /opt/robodojo/repo/third_party/IsaacLab/apps/isaaclab.python.headless.kit \
     --headless \
     "${extra_args[@]}" \
     "$@"

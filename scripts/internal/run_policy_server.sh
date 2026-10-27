@@ -21,7 +21,7 @@ policy_conda_env=$8
 policy_server_port=$9
 policy_server_host="${10:-0.0.0.0}"
 
-ROOT_DIR="$(cd "${policy_dir}/../../.." && pwd)"
+ROOT_DIR="$HOME/projects/RoboDojo"
 UTILS_DIR="${ROOT_DIR}/XPolicyLab/utils"
 SERVER_SCRIPT="${policy_dir}/setup_eval_policy_server.sh"
 
