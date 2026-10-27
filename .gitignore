@@ -22,3 +22,11 @@ ignore/
 .cursor/
 .claude/
 Untitled
+
+# 本地调试产物（手工备份 / 渲染测试输出 / 根目录截图）
+*.before_*
+test_outputs/
+/*.png
+## 根目录临时日志/诊断输出
+/*.log
+/*_diag.txt
